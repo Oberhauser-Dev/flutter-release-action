@@ -1,32 +1,51 @@
 name: 'Flutter Release'
 description: 'Build, release and deploy Flutter apps (Web, Android, iOS, macOS, Linux, Windows)'
 inputs:
-  name:
-    description: 'The name of the app'
+  app-name:
+    description: 'The name of the app executable'
     required: true
   version:
     description: 'Semantic version of the release, see https://semver.org/'
     required: false
     default: 'v0.0.1'
-  build_options:
+  tag:
+    description: 'The tag of the release, could be the same as the version'
+    required: false
+    default: 'v0.0.1'
+  build-options:
     description: 'Add options such as "--dart-define" to the flutter build command'
     required: false
     default: ''
-
+  release-type:
+    description: 'Release one of the following options: apk, web, ipk, macos, windows, debian'
+    default: 'true'
+    required: false
 #  deploy:
 #    description: 'Whether the app should be deployed'
 #    required: false
 #    default: 'false'
+
+outputs:
+  artifact-name:
+    description: "The name of the app build artifact"
+    value: ${{ steps.release.outputs.artifact-name }}
+    
 runs:
   using: "composite"
-  # TODO hand over build options to bash scripts
   steps:
-    - run: echo Hello ${{ inputs.who-to-greet }}.
+    - name: Release App
+      id: release
+      run: |
+        dart pub global activate flutter_release
+        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --build-options ${{ inputs.build-options }} --build-name=${{ inputs.version }})
+        ARTIFACT_NAME=$(basename $ARTIFACT_PATH)
+        echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
+        echo "artifact-name=$(echo $ARTIFACT_NAME)" >> $GITHUB_OUTPUT
       shell: bash
-    - id: random-number-generator
-      run: echo "random-number=$(echo $RANDOM)" >> $GITHUB_OUTPUT
-      shell: bash
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
-    - run: goodbye.sh
-      shell: bash
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ steps.release.outputs.artifact-path }}
+        asset_name: ${{ steps.release.outputs.artifact-name }}
+        tag: ${{ inputs.tag }}
