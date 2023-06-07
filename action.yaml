@@ -4,7 +4,7 @@ inputs:
   app-name:
     description: 'The name of the app executable'
     required: true
-  version:
+  app-version:
     description: 'Semantic version of the release, see https://semver.org/'
     required: false
     default: 'v0.0.1'
@@ -37,7 +37,7 @@ runs:
       id: release
       run: |
         dart pub global activate flutter_release
-        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --build-options ${{ inputs.build-options }} --build-name=${{ inputs.version }})
+        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --app-version=${{ inputs.app-version }} --build-options ${{ inputs.build-options }} --release-type ${{ inputs.release-type }})
         ARTIFACT_NAME=$(basename $ARTIFACT_PATH)
         echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
         echo "artifact-name=$(echo $ARTIFACT_NAME)" >> $GITHUB_OUTPUT
