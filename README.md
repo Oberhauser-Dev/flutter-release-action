@@ -1,2 +1,3 @@
 # flutter-release-action
-Build, release and deploy Flutter apps
+
+Build, release and deploy Flutter apps.

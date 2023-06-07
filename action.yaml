@@ -1,0 +1,32 @@
+name: 'Flutter Release'
+description: 'Build, release and deploy Flutter apps (Web, Android, iOS, macOS, Linux, Windows)'
+inputs:
+  name:
+    description: 'The name of the app'
+    required: true
+  version:
+    description: 'Semantic version of the release, see https://semver.org/'
+    required: false
+    default: 'v0.0.1'
+  build_options:
+    description: 'Add options such as "--dart-define" to the flutter build command'
+    required: false
+    default: ''
+
+#  deploy:
+#    description: 'Whether the app should be deployed'
+#    required: false
+#    default: 'false'
+runs:
+  using: "composite"
+  # TODO hand over build options to bash scripts
+  steps:
+    - run: echo Hello ${{ inputs.who-to-greet }}.
+      shell: bash
+    - id: random-number-generator
+      run: echo "random-number=$(echo $RANDOM)" >> $GITHUB_OUTPUT
+      shell: bash
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+    - run: goodbye.sh
+      shell: bash
