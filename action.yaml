@@ -35,9 +35,17 @@ runs:
   steps:
     - name: Release App
       id: release
+      # Remove leading and trailing newline, if existent, add a newline at the beginning
+      # Replace newline with ` --build-arg=`
       run: |
+        buildOptions='${{ inputs.build-options }}'
+        buildOptions=${buildOptions#$'\n'}
+        buildOptions=${buildOptions%$'\n'}
+        ln=$'\n'
+        buildOptions="$ln$buildOptions"
+        buildOptions="${buildOptions//$'\n'/' --build-arg='}"
         dart pub global activate flutter_release
-        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --app-version=${{ inputs.app-version }} --build-options ${{ inputs.build-options }} --release-type ${{ inputs.release-type }})
+        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --app-version=${{ inputs.app-version }} $buildOptions --release-type ${{ inputs.release-type }})
         ARTIFACT_NAME=$(basename $ARTIFACT_PATH)
         echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
         echo "artifact-name=$(echo $ARTIFACT_NAME)" >> $GITHUB_OUTPUT
