@@ -1,5 +1,5 @@
 name: 'Flutter Release'
-description: 'Build, release and deploy Flutter apps (Web, Android, iOS, macOS, Linux, Windows)'
+description: 'Build, release, publish and deploy Flutter apps (Web, Android, iOS, macOS, Linux, Windows).'
 inputs:
   app-name:
     description: 'The name of the app executable'
@@ -12,7 +12,7 @@ inputs:
     description: 'The tag of the release, could be the same as the version'
     required: false
     default: 'v0.0.1'
-  build-options:
+  build-args:
     description: 'Add options such as "--dart-define" to the flutter build command'
     required: false
     default: ''
@@ -38,14 +38,14 @@ runs:
       # Remove leading and trailing newline, if existent, add a newline at the beginning
       # Replace newline with ` --build-arg=`
       run: |
-        buildOptions='${{ inputs.build-options }}'
-        buildOptions=${buildOptions#$'\n'}
-        buildOptions=${buildOptions%$'\n'}
+        buildArgs='${{ inputs.build-args }}'
+        buildArgs=${buildArgs#$'\n'}
+        buildArgs=${buildArgs%$'\n'}
         ln=$'\n'
-        buildOptions="$ln$buildOptions"
-        buildOptions="${buildOptions//$'\n'/' --build-arg='}"
+        buildArgs="$ln$buildArgs"
+        buildArgs="${buildArgs//$'\n'/' --build-arg='}"
         dart pub global activate flutter_release
-        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --app-version=${{ inputs.app-version }} $buildOptions --release-type ${{ inputs.release-type }})
+        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --app-version=${{ inputs.app-version }} $buildArgs --release-type ${{ inputs.release-type }})
         ARTIFACT_NAME=$(basename $ARTIFACT_PATH)
         echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
         echo "artifact-name=$(echo $ARTIFACT_NAME)" >> $GITHUB_OUTPUT
