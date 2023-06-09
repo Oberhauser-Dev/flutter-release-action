@@ -1,5 +1,6 @@
 name: 'Flutter Release'
 description: 'Build, release, publish and deploy Flutter apps (Web, Android, iOS, macOS, Linux, Windows).'
+author: 'August Oberhauser'
 inputs:
   app-name:
     description: 'The name of the app executable'
