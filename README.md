@@ -9,7 +9,7 @@ The action itself runs on Linux, Windows, and macOS.
 steps:
 - uses: actions/checkout@v3
 - uses: subosito/flutter-action@v2
-- uses: oberhauser-dev/flutter-release-action@v0.0.2
+- uses: oberhauser-dev/flutter-release-action@v0
   with:
     app-name: 'my_flutter_app'
     app-version: 'v1.2.3-alpha.4'
@@ -18,4 +18,5 @@ steps:
     build-args: |-
       --dart-define=API_URL="https://example.com"
       --dart-define=APP_ENV=dev
+    token: ${{ github.token }}
 ```
