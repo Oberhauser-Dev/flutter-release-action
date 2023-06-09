@@ -5,6 +5,14 @@ branding:
   icon: 'smartphone'
   color: 'purple'
 inputs:
+  token:
+    description: "Authorized secret GitHub Personal Access Token. Defaults to github.token"
+    required: false
+    default: ${{ github.token }}
+  working-directory:
+    description: 'Specifies the working directory where the command is run.'
+    required: false
+    default: './'
   app-name:
     description: 'The name of the app executable'
     required: true
@@ -54,10 +62,11 @@ runs:
         echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
         echo "artifact-name=$(echo $ARTIFACT_NAME)" >> $GITHUB_OUTPUT
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        repo_token: ${{ inputs.token }}
         file: ${{ steps.release.outputs.artifact-path }}
         asset_name: ${{ steps.release.outputs.artifact-name }}
         tag: ${{ inputs.tag }}

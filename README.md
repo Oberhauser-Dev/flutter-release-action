@@ -9,7 +9,7 @@ The action itself runs on Linux, Windows, and macOS.
 steps:
 - uses: actions/checkout@v3
 - uses: subosito/flutter-action@v2
-- uses: oberhauser-dev/flutter-release-action@v1
+- uses: oberhauser-dev/flutter-release-action@v0.0.1
   with:
     app-name: 'my_flutter_app'
     app-version: 'v1.2.3-alpha.4'
