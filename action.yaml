@@ -67,6 +67,6 @@ runs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ inputs.token }}
-        file: ${{ steps.release.outputs.artifact-path }}
+        file: ${{ inputs.working-directory }}${{ (endsWith(inputs.working-directory, '/') && '') || '/' }}${{ steps.release.outputs.artifact-path }}
         asset_name: ${{ steps.release.outputs.artifact-name }}
         tag: ${{ inputs.tag }}
