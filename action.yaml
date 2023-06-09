@@ -19,11 +19,11 @@ inputs:
   app-version:
     description: 'Semantic version of the release, see https://semver.org/'
     required: false
-    default: 'v0.0.1'
+    default: ${{ github.ref_name }}
   tag:
     description: 'The tag of the release, could be the same as the version'
     required: false
-    default: 'v0.0.1'
+    default: ${{ github.ref }}
   build-args:
     description: 'Add options such as "--dart-define" to the flutter build command'
     required: false

@@ -12,8 +12,8 @@ steps:
 - uses: oberhauser-dev/flutter-release-action@v0
   with:
     app-name: 'my_flutter_app'
-    app-version: 'v1.2.3-alpha.4'
-    tag: 'my_flutter_app-v1.2.3-alpha.4'
+    app-version: ${{ github.ref_name }} # or set manually: 'v1.2.3-alpha.4'
+    tag: ${{ github.ref }}
     release-type: 'debian'
     build-args: |-
       --dart-define=API_URL="https://example.com"
