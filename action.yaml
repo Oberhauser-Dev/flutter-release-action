@@ -45,6 +45,12 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Install current bash on macOS
+      if: runner.os == 'macOS'
+      run: |
+        brew install bash
+        bash --version
+      shell: bash
     - name: Release App
       id: release
       # Remove leading and trailing newline, if existent, add a newline at the beginning
