@@ -62,9 +62,9 @@ runs:
         ln=$'\n'
         buildArgs="$ln$buildArgs"
         buildArgs="${buildArgs//$'\n'/' --build-arg='}"
-        dart pub global activate flutter_release
-        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --app-version=${{ inputs.app-version }} $buildArgs --release-type ${{ inputs.release-type }})
-        ARTIFACT_NAME=$(basename $ARTIFACT_PATH)
+        dart pub global activate --source git https://github.com/Oberhauser-Dev/flutter_release.git
+        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --app-version=${{ inputs.app-version }} $buildArgs --release-type ${{ inputs.release-type }} | tail -1)
+        ARTIFACT_NAME=$(basename "$ARTIFACT_PATH")
         echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
         echo "artifact-name=$(echo $ARTIFACT_NAME)" >> $GITHUB_OUTPUT
       shell: bash
