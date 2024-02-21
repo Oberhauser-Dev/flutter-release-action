@@ -1,7 +1,8 @@
 # flutter-release-action
 
-Build, release, publish and deploy Flutter apps for Web, Android, iOS, macOS, Linux, Windows.
+A GitHub action of [flutter_release](https://github.com/Oberhauser-Dev/flutter_release) to build, release, publish and deploy Flutter apps for Web, Android, iOS, macOS, Linux, Windows.
 The action itself runs on Linux, Windows, and macOS.
+As example you can check out the workflow of [wrestling_scoreboard](https://github.com/Oberhauser-Dev/wrestling_scoreboard/blob/main/.github/workflows/release.yml).
 
 ## Usage
 
