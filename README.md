@@ -15,7 +15,7 @@ steps:
     app-name: 'my_flutter_app'
     app-version: ${{ github.ref_name }} # or set manually: 'v1.2.3-alpha.4'
     tag: ${{ github.ref }}
-    release-type: 'debian'
+    build-type: 'debian'
     build-args: |-
       --dart-define=API_URL="https://example.com"
       --dart-define=APP_ENV=dev

@@ -28,14 +28,42 @@ inputs:
     description: 'Add options such as "--dart-define" to the flutter build command'
     required: false
     default: ''
-  release-type:
-    description: 'Release one of the following options: apk, web, ipk, macos, windows, debian'
-    default: 'true'
+  build-type:
+    description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, debian'
+    default: ''
     required: false
-#  deploy:
-#    description: 'Whether the app should be deployed'
-#    required: false
-#    default: 'false'
+  publish-dry-run:
+    description: 'Whether the publishing process should only run dry'
+    required: false
+    default: 'true'
+  publish-stage:
+    description: 'At which stage the app should be published: production, beta, alpha, internal'
+    required: false
+    default: ''
+  publish-distributor:
+    description: 'The distributor on which the app should be published: android-google-play, web-server, ios-app-store, mac-app-store, windows-ms-store, linux-ubuntu, linux-snap'
+    required: false
+    default: ''
+  publish-android-fastlane-secrets-json-base64:
+    description: 'The Google Play Credentials Json file as base64 string'
+    required: false
+    default: ''
+  publish-android-keystore-file-base64:
+    description: 'The Keystore file as base64 string'
+    required: false
+    default: ''
+  publish-android-keystore-password:
+    description: 'The Keystore Password'
+    required: false
+    default: ''
+  publish-android-key-alias:
+    description: 'The key alias of the keystore'
+    required: false
+    default: ''
+  publish-android-key-password:
+    description: 'The password of the key alias of the keystore'
+    required: false
+    default: ''
 
 outputs:
   artifact-name:
@@ -51,19 +79,33 @@ runs:
         brew install bash
         bash --version
       shell: bash
-    - name: Release App
-      id: release
+    - name: Prepare
+      id: prepare
       # Remove leading and trailing newline, if existent, add a newline at the beginning
       # Replace newline with ` --build-arg=`
       run: |
+        dart pub global activate flutter_release
         buildArgs='${{ inputs.build-args }}'
         buildArgs=${buildArgs#$'\n'}
         buildArgs=${buildArgs%$'\n'}
         ln=$'\n'
         buildArgs="$ln$buildArgs"
         buildArgs="${buildArgs//$'\n'/' --build-arg='}"
-        dart pub global activate flutter_release
-        ARTIFACT_PATH=$(dart pub global run flutter_release --app-name ${{ inputs.app-name }} --app-version=${{ inputs.app-version }} $buildArgs --release-type ${{ inputs.release-type }} | tail -1)
+        echo "build-args=$(echo $buildArgs)" >> $GITHUB_OUTPUT
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Release App
+      if: ${{ inputs.publish-distributor == '' }} # Only upload to GitHub if not publishing.
+      id: release
+      # Remove leading and trailing newline, if existent, add a newline at the beginning
+      # Replace newline with ` --build-arg=`
+      run: |
+        ARTIFACT_PATH=$(dart pub global run flutter_release build \
+          --app-name ${{ inputs.app-name }} \
+          --app-version=${{ inputs.app-version }} \
+          ${{ steps.prepare.outputs.build-args }} \
+          --build-type ${{ inputs.build-type }} | tail -1)
         ARTIFACT_NAME=$(basename "$ARTIFACT_PATH")
         echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
         echo "artifact-name=$(echo $ARTIFACT_NAME)" >> $GITHUB_OUTPUT
@@ -76,3 +118,21 @@ runs:
         file: ${{ inputs.working-directory }}${{ (endsWith(inputs.working-directory, '/') && '') || '/' }}${{ steps.release.outputs.artifact-path }}
         asset_name: ${{ steps.release.outputs.artifact-name }}
         tag: ${{ inputs.tag }}
+
+    - name: Publish on Google Play
+      if: ${{ inputs.publish-distributor == 'android-google-play' }}
+      run: |
+        dart pub global run flutter_release publish \
+          ${{ inputs.publish-distributor }} \
+          ${{ inputs.publish-dry-run == 'false' && '' || '--dry-run' }} \
+          ${{ inputs.publish-stage == '' && '' || format('--stage={0}', inputs.publish-stage) }} \
+          --app-name ${{ inputs.app-name }} \
+          --app-version=${{ inputs.app-version }} \
+          ${{ steps.prepare.outputs.build-args }} \
+          --fastlane-secrets-json-base64=${{ inputs.publish-android-fastlane-secrets-json-base64 }} \
+          --keystore-file-base64=${{ inputs.publish-android-keystore-file-base64 }} \
+          --keystore-password=${{ inputs.publish-android-keystore-password }} \
+          --key-alias=${{ inputs.publish-android-key-alias }} \
+          --key-password=${{ inputs.publish-android-key-password }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
