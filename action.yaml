@@ -84,7 +84,7 @@ runs:
       # Remove leading and trailing newline, if existent, add a newline at the beginning
       # Replace newline with ` --build-arg=`
       run: |
-        dart pub global activate flutter_release
+        dart pub global activate flutter_release <1.0.0
         buildArgs='${{ inputs.build-args }}'
         buildArgs=${buildArgs#$'\n'}
         buildArgs=${buildArgs%$'\n'}
@@ -98,8 +98,6 @@ runs:
     - name: Release App
       if: ${{ inputs.publish-distributor == '' }} # Only upload to GitHub if in publishing mode.
       id: release
-      # Remove leading and trailing newline, if existent, add a newline at the beginning
-      # Replace newline with ` --build-arg=`
       run: |
         ARTIFACT_PATH=$(dart pub global run flutter_release build \
           ${{ inputs.build-type }} \
