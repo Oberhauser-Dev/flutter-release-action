@@ -36,6 +36,15 @@ inputs:
     description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, debian'
     default: ''
     required: false
+  publish-stage:
+    description: 'At which stage the app should be published: production, beta, alpha, internal'
+    required: false
+    default: ''
+  publish-distributor:
+    description: 'The distributor on which the app should be published: android-google-play, web-server, ios-app-store, mac-app-store, windows-ms-store, linux-ubuntu, linux-snap'
+    required: false
+    default: ''
+  # ANDROID
   android-keystore-file-base64:
     description: 'The Keystore file as base64 string'
     required: false
@@ -52,18 +61,32 @@ inputs:
     description: 'The password of the key alias of the keystore'
     required: false
     default: ''
-  publish-stage:
-    description: 'At which stage the app should be published: production, beta, alpha, internal'
-    required: false
-    default: ''
-  publish-distributor:
-    description: 'The distributor on which the app should be published: android-google-play, web-server, ios-app-store, mac-app-store, windows-ms-store, linux-ubuntu, linux-snap'
-    required: false
-    default: ''
   publish-android-fastlane-secrets-json-base64:
     description: 'The Google Play Credentials Json file as base64 string'
     required: false
     default: ''
+  # WEB
+  publish-web-host:
+    description: 'The hoster of the web app, e.g. the domain or ip address'
+    required: false
+    default: ''
+  publish-web-path:
+    description: 'The Web servers path to your html space of the app'
+    required: false
+    default: ''
+  publish-web-ssh-port:
+    description: 'The Web server SSH port'
+    required: false
+    default: ''
+  publish-web-ssh-user:
+    description: 'The Web server SSH user'
+    required: false
+    default: ''
+  publish-web-ssh-private-key-base64:
+    description: 'The Private ssh key of this GitHub action server as base64 string'
+    required: false
+    default: ''
+
 
 outputs:
   artifact-name:
@@ -95,9 +118,9 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
 
-    - name: Release App
+    - name: Build App
       if: ${{ inputs.publish-distributor == '' }} # Only upload to GitHub if in publishing mode.
-      id: release
+      id: build
       run: |
         ARTIFACT_PATH=$(dart pub global run flutter_release build \
           ${{ inputs.build-type }} \
@@ -116,24 +139,21 @@ runs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ inputs.token }}
-        file: ${{ inputs.working-directory }}${{ (endsWith(inputs.working-directory, '/') && '') || '/' }}${{ steps.release.outputs.artifact-path }}
-        asset_name: ${{ steps.release.outputs.artifact-name }}
+        file: ${{ inputs.working-directory }}${{ (endsWith(inputs.working-directory, '/') && '') || '/' }}${{ steps.build.outputs.artifact-path }}
+        asset_name: ${{ steps.build.outputs.artifact-name }}
         tag: ${{ inputs.tag }}
 
-    - name: Publish on Google Play
-      if: ${{ inputs.publish-distributor == 'android-google-play' }}
+    - name: Publish
+      if: ${{ inputs.publish-distributor != '' }}
       run: |
         dart pub global run flutter_release publish \
-          ${{ inputs.dry-run == 'false' && '' || '--dry-run' }} \
           ${{ inputs.publish-distributor }} \
           ${{ inputs.publish-stage == '' && '' || format('--stage={0}', inputs.publish-stage) }} \
           --app-name ${{ inputs.app-name }} \
           --app-version=${{ inputs.app-version }} \
           ${{ steps.prepare.outputs.build-args }} \
-          --fastlane-secrets-json-base64=${{ inputs.publish-android-fastlane-secrets-json-base64 }} \
-          --keystore-file-base64=${{ inputs.android-keystore-file-base64 }} \
-          --keystore-password=${{ inputs.android-keystore-password }} \
-          --key-alias=${{ inputs.android-key-alias }} \
-          --key-password=${{ inputs.android-key-password }}
+          ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64) || '' }} \
+          ${{ inputs.publish-distributor == 'web-server' && format('--host={0} --path={1} --ssh-port={2} --ssh-user={3} --ssh-private-key-base64={4}', inputs.publish-web-host, inputs.publish-web-path, inputs.publish-web-ssh-port, inputs.publish-web-ssh-user, inputs.publish-web-ssh-private-key-base64) || '' }} \
+          ${{ inputs.dry-run == 'false' && '' || '--dry-run' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
