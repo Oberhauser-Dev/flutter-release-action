@@ -1,0 +1,49 @@
+name: test
+on:
+  workflow_dispatch:
+    inputs:
+      flutter_version:
+        description: 'Flutter Version'
+        required: false
+        default: '3.19.x'
+        type: string
+  workflow_call:
+    inputs:
+      flutter_version:
+        required: false
+        default: '3.19.x'
+        type: string
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
+      - name: Install Flutter requirements for Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - name: Create Example app
+        run: flutter create example
+      - name: Build Web app with flutter-release-action
+        uses: ./
+        with:
+          token: ${{ github.token }}
+          dry-run: true
+          app-name: 'example'
+          app-version: 'v0.0.1-alpha.1'
+          tag: '0.0.1-alpha.1'
+          build-type: 'web'
+          build-args: |-
+            --dart-define=API_URL="https://example.com"
+            --dart-define=API_KEY=12345678
+          working-directory: ./example
+      - name: Check file
+        working-directory: ./example
+        run: [ -f "build/releases/example-web-v0.0.1-alpha.1.tar.gz" ] && exit 0 || exit 1
+

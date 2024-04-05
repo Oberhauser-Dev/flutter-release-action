@@ -10,26 +10,25 @@ For a full example you can check out the workflow of [wrestling_scoreboard](http
 
 ```yaml
 steps:
-- name: Release
 - uses: actions/checkout@v4
 - uses: subosito/flutter-action@v2
 - uses: oberhauser-dev/flutter-release-action@v0
   with:
+    token: ${{ github.token }}
+    dry-run: true
     app-name: 'my_flutter_app'
     app-version: ${{ github.ref_name }} # or set manually: 'v1.2.3-alpha.4'
     tag: ${{ github.ref }}
     build-type: 'debian'
     build-args: |-
       --dart-define=API_URL="https://example.com"
-      --dart-define=APP_ENV=dev
-    token: ${{ github.token }}
+      --dart-define=API_KEY=12345678
 ```
 
 ### Publish
 
 ```yaml
 steps:
-- name: Publish
 - uses: actions/checkout@v4
 - uses: subosito/flutter-action@v2
 - uses: oberhauser-dev/flutter-release-action@v0
@@ -41,7 +40,7 @@ steps:
     build-args: |-
       --dart-define=API_URL="https://example.com"
       --dart-define=APP_ENV=prod
-    publish-dry-run: true
+    dry-run: true
     publish-stage: internal
     publish-distributor: 'android-google-play'
     publish-android-fastlane-secrets-json-base64: ${{ secrets.ANDROID_GOOGLE_PLAY_JSON }}
