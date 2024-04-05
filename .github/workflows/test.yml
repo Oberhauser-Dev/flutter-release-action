@@ -41,7 +41,7 @@ jobs:
           build-type: 'web'
           build-args: |-
             --dart-define=API_URL="https://example.com"
-            --dart-define=API_KEY=12345678
+            --dart-define=API_KEY=::add-mask::12345678
           working-directory: ./example
       - name: Check file
         working-directory: ./example
