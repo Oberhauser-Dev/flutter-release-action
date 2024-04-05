@@ -104,7 +104,7 @@ runs:
           --app-name ${{ inputs.app-name }} \
           --app-version=${{ inputs.app-version }} \
           ${{ steps.prepare.outputs.build-args }} \
-          ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64=::add-mask::{0} --keystore-password=::add-mask::{1} --key-alias=::add-mask::{2} --key-password=::add-mask::{3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
+          ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
           | tail -1)
         ARTIFACT_NAME=$(basename "$ARTIFACT_PATH")
         echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
@@ -130,10 +130,10 @@ runs:
           --app-name ${{ inputs.app-name }} \
           --app-version=${{ inputs.app-version }} \
           ${{ steps.prepare.outputs.build-args }} \
-          --fastlane-secrets-json-base64=::add-mask::${{ inputs.publish-android-fastlane-secrets-json-base64 }} \
-          --keystore-file-base64=::add-mask::${{ inputs.android-keystore-file-base64 }} \
-          --keystore-password=::add-mask::${{ inputs.android-keystore-password }} \
-          --key-alias=::add-mask::${{ inputs.android-key-alias }} \
-          --key-password=::add-mask::${{ inputs.android-key-password }}
+          --fastlane-secrets-json-base64=${{ inputs.publish-android-fastlane-secrets-json-base64 }} \
+          --keystore-file-base64=${{ inputs.android-keystore-file-base64 }} \
+          --keystore-password=${{ inputs.android-keystore-password }} \
+          --key-alias=${{ inputs.android-key-alias }} \
+          --key-password=${{ inputs.android-key-password }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
