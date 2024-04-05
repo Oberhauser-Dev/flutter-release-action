@@ -13,6 +13,10 @@ inputs:
     description: 'Specifies the working directory where the command is run.'
     required: false
     default: './'
+  dry-run:
+    description: 'Whether the process should only run dry'
+    required: false
+    default: 'true'
   app-name:
     description: 'The name of the app executable'
     required: true
@@ -48,10 +52,6 @@ inputs:
     description: 'The password of the key alias of the keystore'
     required: false
     default: ''
-  publish-dry-run:
-    description: 'Whether the publishing process should only run dry'
-    required: false
-    default: 'true'
   publish-stage:
     description: 'At which stage the app should be published: production, beta, alpha, internal'
     required: false
@@ -104,7 +104,7 @@ runs:
           --app-name ${{ inputs.app-name }} \
           --app-version=${{ inputs.app-version }} \
           ${{ steps.prepare.outputs.build-args }} \
-          ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
+          ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64=::add-mask::{0} --keystore-password=::add-mask::{1} --key-alias=::add-mask::{2} --key-password=::add-mask::{3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
           | tail -1)
         ARTIFACT_NAME=$(basename "$ARTIFACT_PATH")
         echo "artifact-path=$(echo $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
@@ -112,6 +112,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
     - name: Upload binaries to release
+      if: ${{ inputs.dry-run == 'false' }}
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ inputs.token }}
@@ -123,16 +124,16 @@ runs:
       if: ${{ inputs.publish-distributor == 'android-google-play' }}
       run: |
         dart pub global run flutter_release publish \
+          ${{ inputs.dry-run == 'false' && '' || '--dry-run' }} \
           ${{ inputs.publish-distributor }} \
-          ${{ inputs.publish-dry-run == 'false' && '' || '--dry-run' }} \
           ${{ inputs.publish-stage == '' && '' || format('--stage={0}', inputs.publish-stage) }} \
           --app-name ${{ inputs.app-name }} \
           --app-version=${{ inputs.app-version }} \
           ${{ steps.prepare.outputs.build-args }} \
-          --fastlane-secrets-json-base64=${{ inputs.publish-android-fastlane-secrets-json-base64 }} \
-          --keystore-file-base64=${{ inputs.android-keystore-file-base64 }} \
-          --keystore-password=${{ inputs.android-keystore-password }} \
-          --key-alias=${{ inputs.android-key-alias }} \
-          --key-password=${{ inputs.android-key-password }}
+          --fastlane-secrets-json-base64=::add-mask::${{ inputs.publish-android-fastlane-secrets-json-base64 }} \
+          --keystore-file-base64=::add-mask::${{ inputs.android-keystore-file-base64 }} \
+          --keystore-password=::add-mask::${{ inputs.android-keystore-password }} \
+          --key-alias=::add-mask::${{ inputs.android-key-alias }} \
+          --key-password=::add-mask::${{ inputs.android-key-password }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
