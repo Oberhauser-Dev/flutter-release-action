@@ -51,6 +51,16 @@ steps:
     android-keystore-password: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
     android-key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
     android-key-password: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    # iOS
+    ios-apple-username: ${{ secrets.IOS_APPLE_USERNAME }}
+    ios-api-key-id: ${{ secrets.IOS_API_KEY_ID }}
+    ios-api-issuer-id: ${{ secrets.IOS_API_ISSUER_ID }}
+    ios-api-private-key-base64: ${{ secrets.IOS_API_PRIVATE_KEY }}
+    ios-content-provider-id: ${{ secrets.IOS_CONTENT_PROVIDER_ID }}
+    ios-team-id: ${{ secrets.IOS_TEAM_ID }}
+    ios-distribution-private-key-base64: ${{ secrets.IOS_DISTRIBUTION_PRIVATE_KEY }}
+    ios-distribution-cert-base64: ${{ secrets.IOS_DISTRIBUTION_CERT }}
+    ios-team-enterprise: ${{ secrets.IOS_TEAM_ENTERPRISE }} # Optional
     # Web
     publish-web-host: ${{ secrets.WEB_HOST }}
     publish-web-path: ${{ secrets.WEB_PATH }}

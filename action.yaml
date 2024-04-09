@@ -65,6 +65,43 @@ inputs:
     description: 'The Google Play Credentials Json file as base64 string'
     required: false
     default: ''
+  # IOS
+  ios-apple-username:
+    description: 'The Apple ID / iTunes username'
+    required: false
+    default: ''
+  ios-api-key-id:
+    description: 'The key id of your App Store Connect API key, see https://appstoreconnect.apple.com/access/integrations/api'
+    required: false
+    default: ''
+  ios-api-issuer-id:
+    description: 'The issuer id of your App Store Connect API key, see https://appstoreconnect.apple.com/access/integrations/api'
+    required: false
+    default: ''
+  ios-api-private-key-base64:
+    description: 'The private App Store Connect API key as base64 string, see https://appstoreconnect.apple.com/access/integrations/api'
+    required: false
+    default: ''
+  ios-content-provider-id:
+    description: 'The content provider id, also known as `itc_team_id` in fastlane'
+    required: false
+    default: ''
+  ios-team-id:
+    description: 'The team id, also known as `team_id` in fastlane'
+    required: false
+    default: ''
+  ios-team-enterprise:
+    description: 'Whether your team is in the Apple Developer Enterprise Program'
+    required: false
+    default: 'false'
+  ios-distribution-private-key-base64:
+    description: 'The private key (as base64 string) connected to the Distribution certificate'
+    required: false
+    default: ''
+  ios-distribution-cert-base64:
+    description: 'The certificate (as base64 string) connected to the Provisioning profile used to sign the app'
+    required: false
+    default: ''
   # WEB
   publish-web-host:
     description: 'The hoster of the web app, e.g. the domain or ip address'
@@ -83,7 +120,7 @@ inputs:
     required: false
     default: ''
   publish-web-ssh-private-key-base64:
-    description: 'The Private ssh key of this GitHub action server as base64 string'
+    description: 'The private ssh key (as base64 string) of this GitHub action server'
     required: false
     default: ''
 
@@ -92,7 +129,7 @@ outputs:
   artifact-name:
     description: "The name of the app build artifact"
     value: ${{ steps.release.outputs.artifact-name }}
-    
+
 runs:
   using: "composite"
   steps:
@@ -154,6 +191,7 @@ runs:
           ${{ steps.prepare.outputs.build-args }} \
           ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64) || '' }} \
           ${{ inputs.publish-distributor == 'web-server' && format('--host={0} --path={1} --ssh-port={2} --ssh-user={3} --ssh-private-key-base64={4}', inputs.publish-web-host, inputs.publish-web-path, inputs.publish-web-ssh-port, inputs.publish-web-ssh-user, inputs.publish-web-ssh-private-key-base64) || '' }} \
+          ${{ inputs.publish-distributor == 'ios-app-store' && format('--apple-username={0} --api-key-id={1} --api-issuer-id={2} --api-private-key-base64={3} --content-provider-id={4} --team-id={5} --distribution-private-key-base64={6} --distribution-cert-base64={7} {8}', inputs.ios-apple-username, inputs.ios-api-key-id, inputs.ios-api-issuer-id, inputs.ios-api-private-key-base64, inputs.ios-content-provider-id, inputs.ios-team-id, inputs.ios-distribution-private-key-base64, inputs.ios-distribution-cert-base64, inputs.ios-team-enterprise == 'true' && '--team-enterprise' || '') || '' }} \
           ${{ inputs.dry-run == 'false' && '' || '--dry-run' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
