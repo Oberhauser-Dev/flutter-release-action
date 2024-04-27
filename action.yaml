@@ -25,7 +25,7 @@ inputs:
     required: false
     default: ${{ github.ref_name }}
   tag:
-    description: 'The tag of the release, could be the same as the version'
+    description: 'The tag of the release. Could be the same as the version. Only needed for build to upload assets.'
     required: false
     default: ${{ github.ref }}
   build-args:
