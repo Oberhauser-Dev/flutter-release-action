@@ -158,7 +158,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
 
     - name: Build App
-      if: ${{ inputs.publish-distributor == '' }} # Only upload to GitHub if in publishing mode.
+      if: inputs.publish-distributor == ''
       id: build
       run: |
         ARTIFACT_PATH=$(dart pub global run flutter_release build \
@@ -174,16 +174,20 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
     - name: Upload binaries to release
-      if: ${{ inputs.dry-run == 'false' }}
+      # Only upload to GitHub if in build mode.
+      if: inputs.dry-run == 'false' && inputs.publish-distributor == ''
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ inputs.token }}
         file: ${{ inputs.working-directory }}${{ (!endsWith(inputs.working-directory, '/') && '/') || '' }}${{ steps.build.outputs.artifact-path }}
         asset_name: ${{ steps.build.outputs.artifact-name }}
         tag: ${{ inputs.tag }}
+    - run: echo "${{ inputs.dry-run == 'false' && 'Release' || 'Dry run' }} for ${{ inputs.build-type }} was successful!"
+      shell: bash
+      if: inputs.publish-distributor == ''
 
     - name: Publish
-      if: ${{ inputs.publish-distributor != '' }}
+      if: inputs.publish-distributor != ''
       run: |
         dart pub global run flutter_release publish \
           ${{ inputs.publish-distributor }} \
