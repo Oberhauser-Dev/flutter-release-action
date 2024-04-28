@@ -15,22 +15,56 @@ on:
         type: string
 
 jobs:
-  build-web:
-    runs-on: ubuntu-latest
+  release-client:
+    name: Release app as ${{ matrix.build-type }} (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: android
+            build-type: apk
+            output: "build/releases/example-v0.0.1-alpha.1-android.apk"
+          - os: windows-latest
+            platform: windows
+            build-type: windows
+            output: "build/releases/example-v0.0.1-alpha.1-windows-amd64.zip"
+          - os: ubuntu-latest
+            platform: linux
+            build-type: debian
+            output: "build/releases/example-v0.0.1-alpha.1-linux-amd64.deb"
+          - os: ubuntu-latest
+            platform: linux
+            build-type: linux
+            output: "build/releases/example-v0.0.1-alpha.1-linux-amd64.tar.gz"
+          - os: ubuntu-latest
+            platform: web
+            build-type: web
+            output: "build/releases/example-v0.0.1-alpha.1-web.tar.gz"
+          - os: macos-latest
+            platform: macos
+            build-type: macos
+            output: "build/releases/example-v0.0.1-alpha.1-macos-arm64.zip"
+    #          - os: macos-latest
+    #            platform: ios
+    #            build-type: ipa
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: 'stable'
-      - name: Install Flutter requirements for Linux
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - uses: actions/setup-java@v4
+        if: matrix.platform == 'android'
+        with:
+          # AGP8 needs JDK 17
+          distribution: 'temurin'
+          java-version: '17'
       - name: Create Example app
         run: flutter create example
-      - name: Build Web app with flutter-release-action
+      - name: Build app with flutter-release-action
         uses: ./
         with:
           token: ${{ github.token }}
@@ -38,13 +72,14 @@ jobs:
           app-name: 'example'
           app-version: 'v0.0.1-alpha.1'
           tag: 'v0.0.1-alpha.1'
-          build-type: 'web'
+          build-type: ${{ matrix.build-type }}
           build-args: |-
             --dart-define=API_URL="https://example.com"
             --dart-define=API_KEY=12345678
           working-directory: ./example
       - name: Check file
         working-directory: ./example
+        shell: bash
         run: |
-          [ -f "build/releases/example-v0.0.1-alpha-web.1.tar.gz" ] && exit 0 || exit 1
+          [ -f "${{ matrix.output }}" ] && exit 0 || exit 1
 
