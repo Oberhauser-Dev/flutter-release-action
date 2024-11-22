@@ -14,113 +14,126 @@ inputs:
     required: false
     default: './'
   dry-run:
-    description: 'Whether the process should only run dry'
+    description: 'Whether the process should only run dry.'
     required: false
     default: 'true'
   app-name:
-    description: 'The name of the app executable'
-    required: true
-  app-version:
-    description: 'Semantic version of the release, see https://semver.org/'
+    description: 'The name of the app executable. Uses the `name` of pubspec.yaml by default.'
     required: false
-    default: ${{ github.ref_name }}
+    default: ''
+  app-version:
+    description: 'Semantic version of the release, see https://semver.org/. Uses the `version` of pubspec.yaml by default.'
+    required: false
+    default: ''
   tag:
-    description: 'The tag of the release. Could be the same as the version. Only needed for build to upload assets.'
+    description: 'The tag of the release. Could be the same as the version. Only needed for build to upload assets. Default is `github.ref`'
     required: false
     default: ${{ github.ref }}
   build-args:
-    description: 'Add options such as "--dart-define" to the flutter build command'
+    description: 'Add options such as "--dart-define" to the flutter build command.'
     required: false
     default: ''
   build-type:
-    description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, debian'
+    description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, debian.'
+    default: ''
+    required: false
+  main-path:
+    description: 'The path to the dart executable. Default is `lib/main.dart`.'
     default: ''
     required: false
   publish-stage:
-    description: 'At which stage the app should be published: production, beta, alpha, internal'
+    description: 'At which stage the app should be published: production, beta, alpha, internal.'
     required: false
     default: ''
   publish-distributor:
-    description: 'The distributor on which the app should be published: android-google-play, web-server, ios-app-store, mac-app-store, windows-ms-store, linux-ubuntu, linux-snap'
+    description: 'The distributor on which the app should be published: android-google-play, web-server, ios-app-store, mac-app-store, windows-ms-store, linux-ubuntu, linux-snap.'
     required: false
     default: ''
   # ANDROID
   android-keystore-file-base64:
-    description: 'The Keystore file as base64 string'
+    description: 'The Keystore file as base64 string.'
     required: false
     default: ''
   android-keystore-password:
-    description: 'The Keystore Password'
+    description: 'The Keystore Password.'
     required: false
     default: ''
   android-key-alias:
-    description: 'The key alias of the keystore'
+    description: 'The key alias of the keystore.'
     required: false
     default: ''
   android-key-password:
-    description: 'The password of the key alias of the keystore'
+    description: 'The password of the key alias of the keystore.'
     required: false
     default: ''
   publish-android-fastlane-secrets-json-base64:
-    description: 'The Google Play Credentials Json file as base64 string'
+    description: 'The Google Play Credentials Json file as base64 string.'
     required: false
     default: ''
   # IOS
   ios-apple-username:
-    description: 'The Apple ID / iTunes username'
+    description: 'The Apple ID / iTunes username.'
     required: false
     default: ''
   ios-api-key-id:
-    description: 'The key id of your App Store Connect API key, see https://appstoreconnect.apple.com/access/integrations/api'
+    description: 'The key id of your App Store Connect API key, see https://appstoreconnect.apple.com/access/integrations/api .'
     required: false
     default: ''
   ios-api-issuer-id:
-    description: 'The issuer id of your App Store Connect API key, see https://appstoreconnect.apple.com/access/integrations/api'
+    description: 'The issuer id of your App Store Connect API key, see https://appstoreconnect.apple.com/access/integrations/api .'
     required: false
     default: ''
   ios-api-private-key-base64:
-    description: 'The private App Store Connect API key as base64 string, see https://appstoreconnect.apple.com/access/integrations/api'
+    description: 'The private App Store Connect API key as base64 string, see https://appstoreconnect.apple.com/access/integrations/api .'
     required: false
     default: ''
   ios-content-provider-id:
-    description: 'The content provider id, also known as `itc_team_id` in fastlane'
+    description: 'The content provider id, also known as `itc_team_id` in fastlane.'
     required: false
     default: ''
   ios-team-id:
-    description: 'The team id, also known as `team_id` in fastlane'
+    description: 'The team id, also known as `team_id` in fastlane.'
     required: false
     default: ''
   ios-team-enterprise:
-    description: 'Whether your team is in the Apple Developer Enterprise Program'
+    description: 'Whether your team is in the Apple Developer Enterprise Program.'
     required: false
     default: 'false'
   ios-distribution-private-key-base64:
-    description: 'The private key (as base64 string) connected to the Distribution certificate'
+    description: 'The private key (as base64 string) connected to the Distribution certificate.'
     required: false
     default: ''
   ios-distribution-cert-base64:
-    description: 'The certificate (as base64 string) connected to the Provisioning profile used to sign the app'
+    description: 'The certificate (as base64 string) connected to the Provisioning profile used to sign the app.'
     required: false
     default: ''
+  ios-update-provisioning:
+    description: 'Try to update and match the Provisioning profile used to sign the app. Default is `false`.'
+    required: false
+    default: 'false'
+  ios-xcode-scheme:
+    description: 'Specify the scheme used by XCode in order to build and sign the app. Default is `Runner`.'
+    required: false
+    default: 'Runner'
   # WEB
   publish-web-host:
-    description: 'The hoster of the web app, e.g. the domain or ip address'
+    description: 'The hoster of the web app, e.g. the domain or ip address.'
     required: false
     default: ''
   publish-web-path:
-    description: 'The Web servers path to your html space of the app'
+    description: 'The Web servers path to your html space of the app.'
     required: false
     default: ''
   publish-web-ssh-port:
-    description: 'The Web server SSH port'
+    description: 'The Web server SSH port.'
     required: false
     default: ''
   publish-web-ssh-user:
-    description: 'The Web server SSH user'
+    description: 'The Web server SSH user.'
     required: false
     default: ''
   publish-web-ssh-private-key-base64:
-    description: 'The private ssh key (as base64 string) of this GitHub action server'
+    description: 'The private ssh key (as base64 string) of this GitHub action server.'
     required: false
     default: ''
 
@@ -163,8 +176,9 @@ runs:
       run: |
         ARTIFACT_PATH=$(dart pub global run flutter_release build \
           ${{ inputs.build-type }} \
-          --app-name ${{ inputs.app-name }} \
-          --app-version=${{ inputs.app-version }} \
+          ${{ inputs.app-name != '' && format('--app-name={0}', inputs.app-name) || '' }} \
+          ${{ inputs.app-version != '' && format('--app-version={0}', inputs.app-version) || '' }} \
+          ${{ inputs.main-path != '' && format('--main-path={0}', inputs.main-path) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
           ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
           | tail -1)
@@ -193,12 +207,13 @@ runs:
         dart pub global run flutter_release publish \
           ${{ inputs.publish-distributor }} \
           ${{ inputs.publish-stage != '' && format('--stage={0}', inputs.publish-stage) || '' }} \
-          --app-name ${{ inputs.app-name }} \
-          --app-version=${{ inputs.app-version }} \
+          ${{ inputs.app-name != '' && format('--app-name={0}', inputs.app-name) || '' }} \
+          ${{ inputs.app-version != '' && format('--app-version={0}', inputs.app-version) || '' }} \
+          ${{ inputs.main-path != '' && format('--main-path={0}', inputs.main-path) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
           ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64) || '' }} \
           ${{ inputs.publish-distributor == 'web-server' && format('--host={0} --path={1} --ssh-port={2} --ssh-user={3} --ssh-private-key-base64={4}', inputs.publish-web-host, inputs.publish-web-path, inputs.publish-web-ssh-port, inputs.publish-web-ssh-user, inputs.publish-web-ssh-private-key-base64) || '' }} \
-          ${{ inputs.publish-distributor == 'ios-app-store' && format('--apple-username={0} --api-key-id={1} --api-issuer-id={2} --api-private-key-base64={3} --content-provider-id={4} --team-id={5} --distribution-private-key-base64={6} --distribution-cert-base64={7} {8}', inputs.ios-apple-username, inputs.ios-api-key-id, inputs.ios-api-issuer-id, inputs.ios-api-private-key-base64, inputs.ios-content-provider-id, inputs.ios-team-id, inputs.ios-distribution-private-key-base64, inputs.ios-distribution-cert-base64, inputs.ios-team-enterprise == 'true' && '--team-enterprise' || '') || '' }} \
+          ${{ inputs.publish-distributor == 'ios-app-store' && format('--apple-username={0} --api-key-id={1} --api-issuer-id={2} --api-private-key-base64={3} --content-provider-id={4} --team-id={5} --distribution-private-key-base64={6} --distribution-cert-base64={7} --update-provisioning={8} --xcode-scheme={9} {10}', inputs.ios-apple-username, inputs.ios-api-key-id, inputs.ios-api-issuer-id, inputs.ios-api-private-key-base64, inputs.ios-content-provider-id, inputs.ios-team-id, inputs.ios-distribution-private-key-base64, inputs.ios-distribution-cert-base64, inputs.ios-update-provisioning, inputs.ios-xcode-scheme, inputs.ios-team-enterprise == 'true' && '--team-enterprise' || '') || '' }} \
           ${{ inputs.dry-run != 'false' && '--dry-run' || '' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}

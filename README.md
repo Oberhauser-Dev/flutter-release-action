@@ -16,8 +16,8 @@ steps:
   with:
     token: ${{ github.token }}
     dry-run: true
-    app-name: 'my_flutter_app'
-    app-version: ${{ github.ref_name }} # or set manually: 'v1.2.3-alpha.4'
+    app-name: 'my_flutter_app' # Optional, takes the name from pubspec.yaml by default
+    app-version: ${{ github.ref_name }} # or set manually: 'v1.2.3-alpha.4', optional, takes the version from pubspec.yaml by default
     tag: ${{ github.ref }}
     build-type: 'debian'
     build-args: |-
@@ -36,13 +36,14 @@ steps:
 - uses: oberhauser-dev/flutter-release-action@v0
   with:
     dry-run: true
-    app-name: 'my_flutter_app'
-    app-version: ${{ github.ref_name }} # or set manually: 'v1.2.3-alpha.4'
-    tag: ${{ github.ref }}
+    app-name: 'my_flutter_app' # Optional
+    app-version: ${{ github.ref_name }} # Optional
+    main-path: 'lib/main.dart' # Optional
+    tag: ${{ github.ref }} # Optional
     token: ${{ github.token }}
     build-args: |-
+      --flavor=prod
       --dart-define=API_URL="https://example.com"
-      --dart-define=APP_ENV=prod
     publish-stage: internal
     publish-distributor: 'android-google-play'
     # Android
@@ -61,6 +62,8 @@ steps:
     ios-distribution-private-key-base64: ${{ secrets.IOS_DISTRIBUTION_PRIVATE_KEY }}
     ios-distribution-cert-base64: ${{ secrets.IOS_DISTRIBUTION_CERT }}
     ios-team-enterprise: ${{ secrets.IOS_TEAM_ENTERPRISE }} # Optional
+    ios-update-provisioning: false # Optional
+    ios-xcode-scheme: Runner # Optional
     # Web
     publish-web-host: ${{ secrets.WEB_HOST }}
     publish-web-path: ${{ secrets.WEB_PATH }}
