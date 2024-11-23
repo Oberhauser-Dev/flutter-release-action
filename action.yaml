@@ -25,6 +25,14 @@ inputs:
     description: 'Semantic version of the release, see https://semver.org/. Uses the `version` of pubspec.yaml by default.'
     required: false
     default: ''
+  build-metadata:
+    description: 'Override build metadata (build number, appends +), see https://semver.org/.'
+    required: false
+    default: ''
+  build-pre-release:
+    description: 'Override build pre-release (appends -), see https://semver.org/.'
+    required: false
+    default: ''
   tag:
     description: 'The tag of the release. Could be the same as the version. Only needed for build to upload assets. Default is `github.ref`'
     required: false
@@ -209,6 +217,8 @@ runs:
           ${{ inputs.publish-stage != '' && format('--stage={0}', inputs.publish-stage) || '' }} \
           ${{ inputs.app-name != '' && format('--app-name={0}', inputs.app-name) || '' }} \
           ${{ inputs.app-version != '' && format('--app-version={0}', inputs.app-version) || '' }} \
+          ${{ inputs.build-metadata != '' && format('--build-metadata={0}', inputs.build-metadata) || '' }} \
+          ${{ inputs.build-pre-release != '' && format('--build-pre-release={0}', inputs.build-pre-release) || '' }} \
           ${{ inputs.main-path != '' && format('--main-path={0}', inputs.main-path) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
           ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64) || '' }} \
