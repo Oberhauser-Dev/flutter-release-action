@@ -170,10 +170,13 @@ runs:
 
         ln=$'\n'
         buildArgs='${{ inputs.build-args }}'
-        buildArgs=${buildArgs#$'\n'}
-        buildArgs=${buildArgs%$'\n'}
-        if [ ! -z "${buildArgs}" ]; then buildArgs="$ln$buildArgs"; fi
-        buildArgs="${buildArgs//$'\n'/' --build-arg='}"
+        # Remove empty lines
+        buildArgs=$(echo "$buildArgs" | sed '/^[[:space:]]*$/d')
+        # Adding a Newline Prefix (if non-empty) and replace newline with `--build-arg`
+        if [ ! -z "${buildArgs}" ]; then
+            buildArgs="$ln$buildArgs"
+            buildArgs="${buildArgs//$'\n'/' --build-arg='}"
+        fi
         echo "build-args=$(echo $buildArgs)" >> $GITHUB_OUTPUT
       shell: bash
       working-directory: ${{ inputs.working-directory }}
