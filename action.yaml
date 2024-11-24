@@ -186,6 +186,8 @@ runs:
           ${{ inputs.build-type }} \
           ${{ inputs.app-name != '' && format('--app-name={0}', inputs.app-name) || '' }} \
           ${{ inputs.app-version != '' && format('--app-version={0}', inputs.app-version) || '' }} \
+          ${{ inputs.build-metadata != '' && format('--build-metadata={0}', inputs.build-metadata) || '' }} \
+          ${{ inputs.build-pre-release != '' && format('--build-pre-release={0}', inputs.build-pre-release) || '' }} \
           ${{ inputs.main-path != '' && format('--main-path={0}', inputs.main-path) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
           ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \

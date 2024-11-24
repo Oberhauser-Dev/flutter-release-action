@@ -26,30 +26,32 @@ jobs:
           - os: ubuntu-latest
             platform: android
             build-type: apk
-            output: "build/releases/example-v0.0.1-alpha.1-android.apk"
+            output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-android.apk"
           - os: windows-latest
             platform: windows
             build-type: windows
-            output: "build/releases/example-v0.0.1-alpha.1-windows-amd64.zip"
+            output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-windows-amd64.zip"
           - os: ubuntu-latest
             platform: linux
             build-type: debian
-            output: "build/releases/example-v0.0.1-alpha.1-linux-amd64.deb"
+            output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-linux-amd64.deb"
           - os: ubuntu-latest
             platform: linux
             build-type: linux
-            output: "build/releases/example-v0.0.1-alpha.1-linux-amd64.tar.gz"
+            output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-linux-amd64.tar.gz"
           - os: ubuntu-latest
             platform: web
             build-type: web
-            output: "build/releases/example-v0.0.1-alpha.1-web.tar.gz"
+            output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-web.tar.gz"
           - os: macos-latest
             platform: macos
             build-type: macos
-            output: "build/releases/example-v0.0.1-alpha.1-macos-arm64.zip"
-    #          - os: macos-latest
-    #            platform: ios
-    #            build-type: ipa
+            output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-macos-arm64.zip"
+          - os: macos-latest
+            platform: ios
+            #build-type: ipa
+            build-type: ios
+            output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-ios.zip"
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -70,8 +72,9 @@ jobs:
           token: ${{ github.token }}
           dry-run: true
           app-name: 'example'
-          app-version: 'v0.0.1-alpha.1'
-          tag: 'v0.0.1-alpha.1'
+          build-pre-release: 'alpha.1'
+          build-metadata: 'nightly.1234f'
+          tag: 'v1.0.0-alpha.1'
           build-type: ${{ matrix.build-type }}
           build-args: |-
             --dart-define=API_URL="https://example.com"
