@@ -6,6 +6,8 @@ For a full example you can check out the workflow of [wrestling_scoreboard](http
 
 ## Usage
 
+A complete guide how to set up publishing can be found in the [flutter_release](https://github.com/Oberhauser-Dev/dart_packages/tree/main/packages/flutter_release#setup) repo.
+
 ### Upload to a GitHub release
 
 ```yaml
