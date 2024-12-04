@@ -49,6 +49,10 @@ inputs:
     description: 'The path to the dart executable. Default is `lib/main.dart`.'
     default: ''
     required: false
+  flavor:
+    description: 'The app flavor.'
+    default: ''
+    required: false
   publish-stage:
     description: 'At which stage the app should be published: production, beta, alpha, internal.'
     required: false
@@ -120,7 +124,7 @@ inputs:
     required: false
     default: 'false'
   ios-xcode-scheme:
-    description: 'Specify the scheme used by XCode in order to build and sign the app. Default is `Runner`.'
+    description: 'Specify the scheme used by XCode in order to build and sign the app. Falls back to the `flavor` input, if set. Default is `Runner`.'
     required: false
     default: 'Runner'
   # WEB
@@ -192,6 +196,7 @@ runs:
           ${{ inputs.build-metadata != '' && format('--build-metadata={0}', inputs.build-metadata) || '' }} \
           ${{ inputs.build-pre-release != '' && format('--build-pre-release={0}', inputs.build-pre-release) || '' }} \
           ${{ inputs.main-path != '' && format('--main-path={0}', inputs.main-path) || '' }} \
+          ${{ inputs.flavor != '' && format('--flavor={0}', inputs.flavor) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
           ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
           | tail -1)
@@ -225,6 +230,7 @@ runs:
           ${{ inputs.build-metadata != '' && format('--build-metadata={0}', inputs.build-metadata) || '' }} \
           ${{ inputs.build-pre-release != '' && format('--build-pre-release={0}', inputs.build-pre-release) || '' }} \
           ${{ inputs.main-path != '' && format('--main-path={0}', inputs.main-path) || '' }} \
+          ${{ inputs.flavor != '' && format('--flavor={0}', inputs.flavor) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
           ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64) || '' }} \
           ${{ inputs.publish-distributor == 'web-server' && format('--host={0} --path={1} --ssh-port={2} --ssh-user={3} --ssh-private-key-base64={4}', inputs.publish-web-host, inputs.publish-web-path, inputs.publish-web-ssh-port, inputs.publish-web-ssh-user, inputs.publish-web-ssh-private-key-base64) || '' }} \
