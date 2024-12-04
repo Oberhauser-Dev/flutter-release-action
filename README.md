@@ -41,12 +41,12 @@ steps:
     app-name: 'my_flutter_app' # Optional
     app-version: ${{ github.ref_name }} # Optional
     main-path: 'lib/main.dart' # Optional
+    flavor: 'prod' # Optional
     tag: ${{ github.ref }} # Optional
     token: ${{ github.token }}
     build-args: |-
-      --flavor=prod
       --dart-define=API_URL="https://example.com"
-    publish-stage: internal
+    publish-stage: 'internal'
     publish-distributor: 'android-google-play'
     # Android
     publish-android-fastlane-secrets-json-base64: ${{ secrets.ANDROID_GOOGLE_PLAY_JSON }}
@@ -65,7 +65,7 @@ steps:
     ios-distribution-cert-base64: ${{ secrets.IOS_DISTRIBUTION_CERT }}
     ios-team-enterprise: ${{ secrets.IOS_TEAM_ENTERPRISE }} # Optional
     ios-update-provisioning: false # Optional
-    ios-xcode-scheme: Runner # Optional
+    ios-xcode-scheme: 'Runner' # Optional, only use if value differs from flavor input
     # Web
     publish-web-host: ${{ secrets.WEB_HOST }}
     publish-web-path: ${{ secrets.WEB_PATH }}
