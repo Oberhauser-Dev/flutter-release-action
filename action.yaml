@@ -126,7 +126,7 @@ inputs:
   ios-xcode-scheme:
     description: 'Specify the scheme used by XCode in order to build and sign the app. Falls back to the `flavor` input, if set. Default is `Runner`.'
     required: false
-    default: 'Runner'
+    default: ''
   # WEB
   publish-web-host:
     description: 'The hoster of the web app, e.g. the domain or ip address.'
@@ -234,7 +234,7 @@ runs:
           ${{ steps.prepare.outputs.build-args }} \
           ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64) || '' }} \
           ${{ inputs.publish-distributor == 'web-server' && format('--host={0} --path={1} --ssh-port={2} --ssh-user={3} --ssh-private-key-base64={4}', inputs.publish-web-host, inputs.publish-web-path, inputs.publish-web-ssh-port, inputs.publish-web-ssh-user, inputs.publish-web-ssh-private-key-base64) || '' }} \
-          ${{ inputs.publish-distributor == 'ios-app-store' && format('--apple-username={0} --api-key-id={1} --api-issuer-id={2} --api-private-key-base64={3} --content-provider-id={4} --team-id={5} --distribution-private-key-base64={6} --distribution-cert-base64={7} --update-provisioning={8} --xcode-scheme={9} {10}', inputs.ios-apple-username, inputs.ios-api-key-id, inputs.ios-api-issuer-id, inputs.ios-api-private-key-base64, inputs.ios-content-provider-id, inputs.ios-team-id, inputs.ios-distribution-private-key-base64, inputs.ios-distribution-cert-base64, inputs.ios-update-provisioning, inputs.ios-xcode-scheme, inputs.ios-team-enterprise == 'true' && '--team-enterprise' || '') || '' }} \
+          ${{ inputs.publish-distributor == 'ios-app-store' && format('--apple-username={0} --api-key-id={1} --api-issuer-id={2} --api-private-key-base64={3} --content-provider-id={4} --team-id={5} --distribution-private-key-base64={6} --distribution-cert-base64={7} --update-provisioning={8} {9} {10}', inputs.ios-apple-username, inputs.ios-api-key-id, inputs.ios-api-issuer-id, inputs.ios-api-private-key-base64, inputs.ios-content-provider-id, inputs.ios-team-id, inputs.ios-distribution-private-key-base64, inputs.ios-distribution-cert-base64, inputs.ios-update-provisioning, inputs.ios-xcode-scheme != '' && format('--xcode-scheme={0}', inputs.ios-xcode-scheme) || '', inputs.ios-team-enterprise == 'true' && '--team-enterprise' || '') || '' }} \
           ${{ inputs.dry-run != 'false' && '--dry-run' || '' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
