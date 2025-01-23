@@ -50,6 +50,7 @@ steps:
     publish-distributor: 'android-google-play'
     # Android
     publish-android-fastlane-secrets-json-base64: ${{ secrets.ANDROID_GOOGLE_PLAY_JSON }}
+    publish-android-release-status: ${{ secrets.ANDROID_RELEASE_STATUS }}
     android-keystore-file-base64: ${{ secrets.ANDROID_KEYSTORE }}
     android-keystore-password: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
     android-key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
