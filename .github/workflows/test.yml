@@ -5,13 +5,13 @@ on:
       flutter_version:
         description: 'Flutter Version'
         required: false
-        default: '3.24.x'
+        default: 'any'
         type: string
   workflow_call:
     inputs:
       flutter_version:
         required: false
-        default: '3.24.x'
+        default: 'any'
         type: string
 
 jobs:
