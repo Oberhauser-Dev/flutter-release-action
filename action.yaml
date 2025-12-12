@@ -17,6 +17,10 @@ inputs:
     description: 'Whether the process should only run dry.'
     required: false
     default: 'true'
+  verbose:
+    description: 'Whether the process should log processes.'
+    required: false
+    default: 'false'
   app-name:
     description: 'The name of the app executable. Uses the `name` of pubspec.yaml by default.'
     required: false
@@ -203,6 +207,7 @@ runs:
           ${{ inputs.flavor != '' && format('--flavor={0}', inputs.flavor) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
           ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
+          ${{ inputs.verbose != 'false' && '--verbose' || '' }} \
           | tail -1)
         ARTIFACT_NAME=$(basename "$ARTIFACT_PATH")
         echo "Artifact Path: $ARTIFACT_PATH"
@@ -239,6 +244,7 @@ runs:
           ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4} {5}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64, inputs.publish-android-release-status != '' && format('--release-status={0}', inputs.publish-android-release-status) || '') || '' }} \
           ${{ inputs.publish-distributor == 'web-server' && format('--host={0} --path={1} --ssh-port={2} --ssh-user={3} --ssh-private-key-base64={4}', inputs.publish-web-host, inputs.publish-web-path, inputs.publish-web-ssh-port, inputs.publish-web-ssh-user, inputs.publish-web-ssh-private-key-base64) || '' }} \
           ${{ inputs.publish-distributor == 'ios-app-store' && format('--apple-username={0} --api-key-id={1} --api-issuer-id={2} --api-private-key-base64={3} --content-provider-id={4} --team-id={5} --distribution-private-key-base64={6} --distribution-cert-base64={7} --update-provisioning={8} {9} {10}', inputs.ios-apple-username, inputs.ios-api-key-id, inputs.ios-api-issuer-id, inputs.ios-api-private-key-base64, inputs.ios-content-provider-id, inputs.ios-team-id, inputs.ios-distribution-private-key-base64, inputs.ios-distribution-cert-base64, inputs.ios-update-provisioning, inputs.ios-xcode-scheme != '' && format('--xcode-scheme={0}', inputs.ios-xcode-scheme) || '', inputs.ios-team-enterprise == 'true' && '--team-enterprise' || '') || '' }} \
-          ${{ inputs.dry-run != 'false' && '--dry-run' || '' }}
+          ${{ inputs.dry-run != 'false' && '--dry-run' || '' }} \
+          ${{ inputs.verbose != 'false' && '--verbose' || '' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}

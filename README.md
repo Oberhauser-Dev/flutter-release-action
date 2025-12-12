@@ -38,6 +38,7 @@ steps:
 - uses: oberhauser-dev/flutter-release-action@v0
   with:
     dry-run: true
+    verbose: false # Optional
     app-name: 'my_flutter_app' # Optional
     app-version: ${{ github.ref_name }} # Optional
     main-path: 'lib/main.dart' # Optional
