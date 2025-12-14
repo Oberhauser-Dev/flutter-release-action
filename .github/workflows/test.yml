@@ -71,6 +71,7 @@ jobs:
         with:
           token: ${{ github.token }}
           dry-run: true
+          verbose: true
           app-name: 'example'
           build-pre-release: 'alpha.1'
           build-metadata: 'nightly.1234f'

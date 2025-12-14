@@ -38,6 +38,7 @@ steps:
 - uses: oberhauser-dev/flutter-release-action@v0
   with:
     dry-run: true
+    verbose: false # Optional
     app-name: 'my_flutter_app' # Optional
     app-version: ${{ github.ref_name }} # Optional
     main-path: 'lib/main.dart' # Optional
@@ -50,7 +51,7 @@ steps:
     publish-distributor: 'android-google-play'
     # Android
     publish-android-fastlane-secrets-json-base64: ${{ secrets.ANDROID_GOOGLE_PLAY_JSON }}
-    publish-android-release-status: ${{ secrets.ANDROID_RELEASE_STATUS }}
+    publish-android-release-status: 'completed' # Optional, default: 'draft'. You need to have released an alpha version for `completed` status to work: https://github.com/fastlane/fastlane/discussions/18293
     android-keystore-file-base64: ${{ secrets.ANDROID_KEYSTORE }}
     android-keystore-password: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
     android-key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
