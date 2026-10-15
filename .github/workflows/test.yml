@@ -31,6 +31,10 @@ jobs:
             platform: windows
             build-type: windows
             output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-windows-amd64.zip"
+          - os: windows-latest
+            platform: windows
+            build-type: msix
+            output: "build/releases/example-v1.0.0-alpha.1+nightly.1234f-windows-amd64.msix"
           - os: ubuntu-latest
             platform: linux
             build-type: debian

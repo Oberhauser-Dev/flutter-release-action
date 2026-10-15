@@ -46,7 +46,7 @@ inputs:
     required: false
     default: ''
   build-type:
-    description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, debian.'
+    description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, msix, debian.'
     default: ''
     required: false
   main-path:
@@ -135,6 +135,15 @@ inputs:
     description: 'Specify the scheme used by XCode in order to build and sign the app. Falls back to the `flavor` input, if set. Default is `Runner`.'
     required: false
     default: ''
+  # WINDOWS
+  windows-certificate-file-base64:
+    description: 'The certificate (.pfx) as base64 string to sign the MSIX installer.'
+    required: false
+    default: ''
+  windows-certificate-password:
+    description: 'The password of the certificate.'
+    required: false
+    default: ''
   # WEB
   publish-web-host:
     description: 'The hoster of the web app, e.g. the domain or ip address.'
@@ -207,6 +216,7 @@ runs:
           ${{ inputs.flavor != '' && format('--flavor={0}', inputs.flavor) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
           ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
+          ${{ (inputs.build-type == 'msix' && inputs.windows-certificate-file-base64 != '') && format('--certificate-file-base64={0} --certificate-password={1}', inputs.windows-certificate-file-base64, inputs.windows-certificate-password) || '' }} \
           ${{ inputs.verbose != 'false' && '--verbose' || '' }} \
           | tail -1)
         ARTIFACT_NAME=$(basename "$ARTIFACT_PATH")

@@ -25,7 +25,13 @@ steps:
     build-args: |-
       --dart-define=API_URL="https://example.com"
       --dart-define=API_KEY=12345678
+    # Windows: Optional, otherwise 'msix' is signed with a test certificate
+    windows-certificate-file-base64: ${{ secrets.WINDOWS_CERTIFICATE }}
+    windows-certificate-password: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
 ```
+
+The MSIX installer is configured via `msix_config` in your `pubspec.yaml`,
+see [flutter_release](https://github.com/Oberhauser-Dev/dart_packages/tree/main/packages/flutter_release#windows---msix-installer).
 
 ### Publish
 
