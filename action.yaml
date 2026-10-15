@@ -46,7 +46,7 @@ inputs:
     required: false
     default: ''
   build-type:
-    description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, msix, debian.'
+    description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, msix, msix-store, debian.'
     default: ''
     required: false
   main-path:
@@ -144,6 +144,18 @@ inputs:
     description: 'The password of the certificate.'
     required: false
     default: ''
+  windows-msix-publisher:
+    description: 'The publisher of the MSIX installer (e.g. `CN=...`), required for the Microsoft Store (`msix-store`). When signing, it must match the subject of the certificate.'
+    required: false
+    default: ''
+  windows-msix-identity-name:
+    description: 'The identity name of the MSIX installer, required for the Microsoft Store (`msix-store`).'
+    required: false
+    default: ''
+  windows-msix-publisher-display-name:
+    description: 'The display name of the publisher of the MSIX installer, required for the Microsoft Store (`msix-store`).'
+    required: false
+    default: ''
   # WEB
   publish-web-host:
     description: 'The hoster of the web app, e.g. the domain or ip address.'
@@ -170,7 +182,7 @@ inputs:
 outputs:
   artifact-name:
     description: "The name of the app build artifact"
-    value: ${{ steps.release.outputs.artifact-name }}
+    value: ${{ steps.build.outputs.artifact-name }}
 
 runs:
   using: "composite"
@@ -207,7 +219,7 @@ runs:
       id: build
       run: |
         ARTIFACT_PATH=$(dart pub global run flutter_release build \
-          ${{ inputs.build-type }} \
+          ${{ inputs.build-type == 'msix-store' && 'msix --store' || inputs.build-type }} \
           ${{ inputs.app-name != '' && format('--app-name={0}', inputs.app-name) || '' }} \
           ${{ inputs.app-version != '' && format('--app-version={0}', inputs.app-version) || '' }} \
           ${{ inputs.build-metadata != '' && format('--build-metadata={0}', inputs.build-metadata) || '' }} \
@@ -217,6 +229,9 @@ runs:
           ${{ steps.prepare.outputs.build-args }} \
           ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
           ${{ (inputs.build-type == 'msix' && inputs.windows-certificate-file-base64 != '') && format('--certificate-file-base64={0} --certificate-password={1}', inputs.windows-certificate-file-base64, inputs.windows-certificate-password) || '' }} \
+          ${{ ((inputs.build-type == 'msix' || inputs.build-type == 'msix-store') && inputs.windows-msix-publisher != '') && format('--publisher="{0}"', inputs.windows-msix-publisher) || '' }} \
+          ${{ ((inputs.build-type == 'msix' || inputs.build-type == 'msix-store') && inputs.windows-msix-identity-name != '') && format('--identity-name="{0}"', inputs.windows-msix-identity-name) || '' }} \
+          ${{ ((inputs.build-type == 'msix' || inputs.build-type == 'msix-store') && inputs.windows-msix-publisher-display-name != '') && format('--publisher-display-name="{0}"', inputs.windows-msix-publisher-display-name) || '' }} \
           ${{ inputs.verbose != 'false' && '--verbose' || '' }} \
           | tail -1)
         ARTIFACT_NAME=$(basename "$ARTIFACT_PATH")
