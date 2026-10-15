@@ -81,3 +81,22 @@ steps:
     publish-web-ssh-user: ${{ secrets.WEB_SSH_USER }}
     publish-web-ssh-private-key-base64: ${{ secrets.WEB_SSH_PRIVATE_KEY }}
 ```
+
+#### Microsoft Store
+
+Build the unsigned installer for the Microsoft Store with `build-type: 'msix-store'`, as the store signs it on submission:
+
+```yaml
+steps:
+- uses: actions/checkout@v4
+- uses: subosito/flutter-action@v2
+- uses: oberhauser-dev/flutter-release-action@v0
+  with:
+    dry-run: false
+    app-version: ${{ github.ref_name }}
+    build-type: 'msix-store'
+    # Required, see Partner Center > Product identity
+    windows-msix-publisher: ${{ secrets.WINDOWS_STORE_PUBLISHER }}
+    windows-msix-identity-name: ${{ secrets.WINDOWS_STORE_IDENTITY_NAME }}
+    windows-msix-publisher-display-name: ${{ secrets.WINDOWS_STORE_PUBLISHER_DISPLAY_NAME }}
+```
