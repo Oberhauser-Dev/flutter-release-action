@@ -41,6 +41,14 @@ inputs:
     description: 'The tag of the release. Could be the same as the version. Only needed for build to upload assets. Default is `github.ref`'
     required: false
     default: ${{ github.ref }}
+  upload-release-asset:
+    description: 'Whether to upload the build artifact to the GitHub release of the `tag` (`true` or `false`). By default, all build types are uploaded except `msix-store`, as the Microsoft Store package is unsigned.'
+    required: false
+    default: ''
+  upload-workflow-artifact:
+    description: 'Whether to upload the build artifact as workflow artifact (`true` or `false`), e.g. to publish it in a later job. By default, only `msix-store` builds are uploaded, which are used by the `windows-ms-store` distributor.'
+    required: false
+    default: ''
   build-args:
     description: 'Add options such as "--dart-define" to the flutter build command.'
     required: false
@@ -156,6 +164,42 @@ inputs:
     description: 'The display name of the publisher of the MSIX installer, required for the Microsoft Store (`msix-store`).'
     required: false
     default: ''
+  publish-windows-tenant-id:
+    description: 'The Microsoft Entra tenant id associated with the Partner Center account.'
+    required: false
+    default: ''
+  publish-windows-client-id:
+    description: 'The client id of the Microsoft Entra application with access to the Partner Center account.'
+    required: false
+    default: ''
+  publish-windows-client-secret:
+    description: 'The client secret of the Microsoft Entra application.'
+    required: false
+    default: ''
+  publish-windows-seller-id:
+    description: 'The seller id of the Partner Center account.'
+    required: false
+    default: ''
+  publish-windows-product-id:
+    description: 'The Store id of the app (e.g. `9N...`), see Partner Center > Product identity.'
+    required: false
+    default: ''
+  publish-windows-flight-id:
+    description: 'The package flight to publish to, publishes to the public by default.'
+    required: false
+    default: ''
+  publish-windows-rollout-percentage:
+    description: 'The rollout percentage of the package (0-100).'
+    required: false
+    default: ''
+  publish-windows-release-status:
+    description: 'The status of the submission: draft (default) or completed (submit for certification).'
+    required: false
+    default: ''
+  publish-windows-packages:
+    description: 'Newline separated paths of the MSIX packages built via `msix-store` (e.g. one per architecture). Multiple packages are published as bundle. By default, the packages uploaded as workflow artifacts by `msix-store` builds of the same workflow run are used.'
+    required: false
+    default: ''
   # WEB
   publish-web-host:
     description: 'The hoster of the web app, e.g. the domain or ip address.'
@@ -211,6 +255,14 @@ runs:
             buildArgs="${buildArgs//$'\n'/' --build-arg='}"
         fi
         echo "build-args=$(echo $buildArgs)" >> $GITHUB_OUTPUT
+
+        # Key of the workflow artifacts, the publish distributor `windows-ms-store` consumes `msix-store` builds.
+        artifactKey="flutter-release-${{ inputs.publish-distributor == 'windows-ms-store' && 'msix-store' || inputs.build-type }}"
+        appName='${{ inputs.app-name }}'
+        flavor='${{ inputs.flavor }}'
+        if [ ! -z "$appName" ]; then artifactKey="$artifactKey-$appName"; fi
+        if [ ! -z "$flavor" ]; then artifactKey="$artifactKey-$flavor"; fi
+        echo "artifact-key=$artifactKey" >> $GITHUB_OUTPUT
       shell: bash
       working-directory: ${{ inputs.working-directory }}
 
@@ -242,16 +294,62 @@ runs:
       working-directory: ${{ inputs.working-directory }}
     - name: Upload binaries to release
       # Only upload to GitHub if in build mode.
-      if: inputs.dry-run == 'false' && inputs.publish-distributor == ''
+      if: >-
+        inputs.dry-run == 'false' && inputs.publish-distributor == '' &&
+        (inputs.upload-release-asset == 'true' || (inputs.upload-release-asset == '' && inputs.build-type != 'msix-store'))
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ inputs.token }}
         file: ${{ inputs.working-directory }}${{ (!endsWith(inputs.working-directory, '/') && '/') || '' }}${{ steps.build.outputs.artifact-path }}
         asset_name: ${{ steps.build.outputs.artifact-name }}
         tag: ${{ inputs.tag }}
+    - name: Upload workflow artifact
+      if: >-
+        inputs.publish-distributor == '' &&
+        (inputs.upload-workflow-artifact == 'true' || (inputs.upload-workflow-artifact == '' && inputs.build-type == 'msix-store'))
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ steps.prepare.outputs.artifact-key }}-${{ runner.os }}-${{ runner.arch }}
+        path: ${{ inputs.working-directory }}${{ (!endsWith(inputs.working-directory, '/') && '/') || '' }}${{ steps.build.outputs.artifact-path }}
+        if-no-files-found: error
+        retention-days: 1
     - run: echo "${{ inputs.dry-run == 'false' && 'Release' || 'Dry run' }} for ${{ inputs.build-type }} was successful!"
       shell: bash
       if: inputs.publish-distributor == ''
+
+    - name: Setup Microsoft Store Developer CLI
+      if: inputs.publish-distributor == 'windows-ms-store'
+      uses: microsoft/microsoft-store-apppublisher@v1
+    - name: Download Microsoft Store packages
+      if: inputs.publish-distributor == 'windows-ms-store' && inputs.publish-windows-packages == ''
+      uses: actions/download-artifact@v8
+      with:
+        pattern: ${{ steps.prepare.outputs.artifact-key }}-*
+        path: ${{ inputs.working-directory }}${{ (!endsWith(inputs.working-directory, '/') && '/') || '' }}build/flutter-release-msix-store
+        merge-multiple: true
+    - name: Collect Microsoft Store packages
+      id: windows-packages
+      if: inputs.publish-distributor == 'windows-ms-store'
+      run: |
+        packages='${{ inputs.publish-windows-packages }}'
+        if [ -z "${packages//[[:space:]]}" ]; then
+          packages=$(ls build/flutter-release-msix-store/*.msix 2>/dev/null || true)
+        fi
+        packages=$(echo "$packages" | sed '/^[[:space:]]*$/d')
+        if [ -z "$packages" ]; then
+          echo "::error::No MSIX packages found. Build them via 'msix-store' in a previous job of this workflow run or pass them via 'publish-windows-packages'."
+          exit 1
+        fi
+        echo "Packages:"
+        echo "$packages"
+
+        packageArgs=''
+        while IFS= read -r package; do
+          packageArgs="$packageArgs --package=\"$package\""
+        done <<< "$packages"
+        echo "package-args=$packageArgs" >> $GITHUB_OUTPUT
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
 
     - name: Publish
       if: inputs.publish-distributor != ''
@@ -269,6 +367,8 @@ runs:
           ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4} {5}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64, inputs.publish-android-release-status != '' && format('--release-status={0}', inputs.publish-android-release-status) || '') || '' }} \
           ${{ inputs.publish-distributor == 'web-server' && format('--host={0} --path={1} --ssh-port={2} --ssh-user={3} --ssh-private-key-base64={4}', inputs.publish-web-host, inputs.publish-web-path, inputs.publish-web-ssh-port, inputs.publish-web-ssh-user, inputs.publish-web-ssh-private-key-base64) || '' }} \
           ${{ inputs.publish-distributor == 'ios-app-store' && format('--apple-username={0} --api-key-id={1} --api-issuer-id={2} --api-private-key-base64={3} --content-provider-id={4} --team-id={5} --distribution-private-key-base64={6} --distribution-cert-base64={7} --update-provisioning={8} {9} {10}', inputs.ios-apple-username, inputs.ios-api-key-id, inputs.ios-api-issuer-id, inputs.ios-api-private-key-base64, inputs.ios-content-provider-id, inputs.ios-team-id, inputs.ios-distribution-private-key-base64, inputs.ios-distribution-cert-base64, inputs.ios-update-provisioning, inputs.ios-xcode-scheme != '' && format('--xcode-scheme={0}', inputs.ios-xcode-scheme) || '', inputs.ios-team-enterprise == 'true' && '--team-enterprise' || '') || '' }} \
+          ${{ inputs.publish-distributor == 'windows-ms-store' && format('--tenant-id={0} --client-id={1} --client-secret=''{2}'' --seller-id={3} --product-id={4} {5} {6} {7}', inputs.publish-windows-tenant-id, inputs.publish-windows-client-id, inputs.publish-windows-client-secret, inputs.publish-windows-seller-id, inputs.publish-windows-product-id, inputs.publish-windows-flight-id != '' && format('--flight-id={0}', inputs.publish-windows-flight-id) || '', inputs.publish-windows-rollout-percentage != '' && format('--rollout-percentage={0}', inputs.publish-windows-rollout-percentage) || '', inputs.publish-windows-release-status != '' && format('--release-status={0}', inputs.publish-windows-release-status) || '') || '' }} \
+          ${{ inputs.publish-distributor == 'windows-ms-store' && steps.windows-packages.outputs.package-args || '' }} \
           ${{ inputs.dry-run != 'false' && '--dry-run' || '' }} \
           ${{ inputs.verbose != 'false' && '--verbose' || '' }}
       shell: bash
