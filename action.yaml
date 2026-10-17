@@ -87,7 +87,7 @@ inputs:
     required: false
     default: ''
   android-key-password:
-    description: 'The password of the key alias of the keystore.'
+    description: 'The password of the key alias of the keystore. Uses the keystore password by default.'
     required: false
     default: ''
   publish-android-fastlane-secrets-json-base64:
@@ -279,7 +279,7 @@ runs:
           ${{ inputs.main-path != '' && format('--main-path={0}', inputs.main-path) || '' }} \
           ${{ inputs.flavor != '' && format('--flavor={0}', inputs.flavor) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
-          ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password) || '' }} \
+          ${{ ((inputs.build-type == 'apk' || inputs.build-type == 'aab') && inputs.android-keystore-file-base64 != '' && inputs.android-keystore-password != '' && inputs.android-key-alias != '') && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} {3}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password != '' && format('--key-password={0}', inputs.android-key-password) || '') || '' }} \
           ${{ (inputs.build-type == 'msix' && inputs.windows-certificate-file-base64 != '') && format('--certificate-file-base64={0} --certificate-password={1}', inputs.windows-certificate-file-base64, inputs.windows-certificate-password) || '' }} \
           ${{ ((inputs.build-type == 'msix' || inputs.build-type == 'msix-store') && inputs.windows-msix-publisher != '') && format('--publisher="{0}"', inputs.windows-msix-publisher) || '' }} \
           ${{ ((inputs.build-type == 'msix' || inputs.build-type == 'msix-store') && inputs.windows-msix-identity-name != '') && format('--identity-name="{0}"', inputs.windows-msix-identity-name) || '' }} \
@@ -364,7 +364,7 @@ runs:
           ${{ inputs.main-path != '' && format('--main-path={0}', inputs.main-path) || '' }} \
           ${{ inputs.flavor != '' && format('--flavor={0}', inputs.flavor) || '' }} \
           ${{ steps.prepare.outputs.build-args }} \
-          ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} --key-password={3} --fastlane-secrets-json-base64={4} {5}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password, inputs.publish-android-fastlane-secrets-json-base64, inputs.publish-android-release-status != '' && format('--release-status={0}', inputs.publish-android-release-status) || '') || '' }} \
+          ${{ inputs.publish-distributor == 'android-google-play' && format('--keystore-file-base64={0} --keystore-password={1} --key-alias={2} {3} --fastlane-secrets-json-base64={4} {5}', inputs.android-keystore-file-base64, inputs.android-keystore-password, inputs.android-key-alias, inputs.android-key-password != '' && format('--key-password={0}', inputs.android-key-password) || '', inputs.publish-android-fastlane-secrets-json-base64, inputs.publish-android-release-status != '' && format('--release-status={0}', inputs.publish-android-release-status) || '') || '' }} \
           ${{ inputs.publish-distributor == 'web-server' && format('--host={0} --path={1} --ssh-port={2} --ssh-user={3} --ssh-private-key-base64={4}', inputs.publish-web-host, inputs.publish-web-path, inputs.publish-web-ssh-port, inputs.publish-web-ssh-user, inputs.publish-web-ssh-private-key-base64) || '' }} \
           ${{ inputs.publish-distributor == 'ios-app-store' && format('--apple-username={0} --api-key-id={1} --api-issuer-id={2} --api-private-key-base64={3} --content-provider-id={4} --team-id={5} --distribution-private-key-base64={6} --distribution-cert-base64={7} --update-provisioning={8} {9} {10}', inputs.ios-apple-username, inputs.ios-api-key-id, inputs.ios-api-issuer-id, inputs.ios-api-private-key-base64, inputs.ios-content-provider-id, inputs.ios-team-id, inputs.ios-distribution-private-key-base64, inputs.ios-distribution-cert-base64, inputs.ios-update-provisioning, inputs.ios-xcode-scheme != '' && format('--xcode-scheme={0}', inputs.ios-xcode-scheme) || '', inputs.ios-team-enterprise == 'true' && '--team-enterprise' || '') || '' }} \
           ${{ inputs.publish-distributor == 'windows-ms-store' && format('--tenant-id={0} --client-id={1} --client-secret=''{2}'' --seller-id={3} --product-id={4} {5} {6} {7}', inputs.publish-windows-tenant-id, inputs.publish-windows-client-id, inputs.publish-windows-client-secret, inputs.publish-windows-seller-id, inputs.publish-windows-product-id, inputs.publish-windows-flight-id != '' && format('--flight-id={0}', inputs.publish-windows-flight-id) || '', inputs.publish-windows-rollout-percentage != '' && format('--rollout-percentage={0}', inputs.publish-windows-rollout-percentage) || '', inputs.publish-windows-release-status != '' && format('--release-status={0}', inputs.publish-windows-release-status) || '') || '' }} \
