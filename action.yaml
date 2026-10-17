@@ -54,7 +54,7 @@ inputs:
     required: false
     default: ''
   build-type:
-    description: 'Build one of the following options: apk, aab, web, ipk, macos, windows, msix, msix-store, debian.'
+    description: 'Build one of the following options: apk, aab, web, ios, ipa, macos, windows, msix, msix-store, linux, debian.'
     default: ''
     required: false
   main-path:
