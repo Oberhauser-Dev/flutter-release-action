@@ -26,6 +26,11 @@ steps:
       --dart-define=API_URL="https://example.com"
       --dart-define=API_KEY=12345678
     upload-release-asset: '' # Optional, uploads all build types except 'msix-store' to the GitHub release by default
+    # Android: Optional, signs 'apk' and 'aab' with your keystore
+    android-keystore-file-base64: ${{ secrets.ANDROID_KEYSTORE }}
+    android-keystore-password: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+    android-key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+    android-key-password: ${{ secrets.ANDROID_KEY_PASSWORD }} # Optional, uses the keystore password by default
     # Windows: Optional, otherwise 'msix' is signed with a test certificate
     windows-certificate-file-base64: ${{ secrets.WINDOWS_CERTIFICATE }}
     windows-certificate-password: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
@@ -62,7 +67,7 @@ steps:
     android-keystore-file-base64: ${{ secrets.ANDROID_KEYSTORE }}
     android-keystore-password: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
     android-key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
-    android-key-password: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    android-key-password: ${{ secrets.ANDROID_KEY_PASSWORD }} # Optional, uses the keystore password by default
     # iOS
     ios-apple-username: ${{ secrets.IOS_APPLE_USERNAME }}
     ios-api-key-id: ${{ secrets.IOS_API_KEY_ID }}
