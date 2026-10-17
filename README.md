@@ -18,8 +18,14 @@ steps:
   with:
     token: ${{ github.token }}
     dry-run: true
+    verbose: false # Optional
+    working-directory: './' # Optional, e.g. the path of the app in a monorepo
     app-name: 'my_flutter_app' # Optional, takes the name from pubspec.yaml by default
     app-version: ${{ github.ref_name }} # or set manually: 'v1.2.3-alpha.4', optional, takes the version from pubspec.yaml by default
+    build-metadata: '' # Optional, overrides the build metadata (appends `+`), e.g. a build number
+    build-pre-release: '' # Optional, overrides the pre-release (appends `-`), e.g. 'nightly'
+    main-path: 'lib/main.dart' # Optional
+    flavor: 'prod' # Optional
     tag: ${{ github.ref }}
     build-type: 'debian' # One of: apk, aab, web, ios, ipa, macos, windows, msix, msix-store, linux, debian
     build-args: |-
@@ -51,8 +57,11 @@ steps:
   with:
     dry-run: true
     verbose: false # Optional
+    working-directory: './' # Optional
     app-name: 'my_flutter_app' # Optional
     app-version: ${{ github.ref_name }} # Optional
+    build-metadata: '' # Optional
+    build-pre-release: '' # Optional
     main-path: 'lib/main.dart' # Optional
     flavor: 'prod' # Optional
     tag: ${{ github.ref }} # Optional
