@@ -21,7 +21,7 @@ steps:
     app-name: 'my_flutter_app' # Optional, takes the name from pubspec.yaml by default
     app-version: ${{ github.ref_name }} # or set manually: 'v1.2.3-alpha.4', optional, takes the version from pubspec.yaml by default
     tag: ${{ github.ref }}
-    build-type: 'debian'
+    build-type: 'debian' # One of: apk, aab, web, ios, ipa, macos, windows, msix, msix-store, linux, debian
     build-args: |-
       --dart-define=API_URL="https://example.com"
       --dart-define=API_KEY=12345678
